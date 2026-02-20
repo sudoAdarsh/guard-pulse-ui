@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GuardPulse — Fraud Risk Dashboard</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">GP</div>
+      <div>
+        <div class="title">GuardPulse</div>
+        <div class="subtitle">FastAPI + ML + SHAP + Gemini — clear backend integration demo</div>
+      </div>
+    </div>
+
+    <div class="right">
+      <label class="small">API Base URL</label>
+      <input id="apiBase" class="input mono" value="http://localhost:8000" />
+      <button id="pingBtn" class="btn ghost">Ping</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <!-- Left: Inputs -->
+    <section class="card">
+      <div class="cardHead">
+        <h2>1) Single Transaction → <span class="mono">POST /predict</span></h2>
+        <p>Fill a transaction and run prediction. You’ll see reasons + Gemini summary.</p>
+      </div>
+
+      <form id="txForm" class="form">
+        <div class="row">
+          <label>transaction_id</label>
+          <input class="input mono" name="transaction_id" value="tx_001" required />
+        </div>
+
+        <div class="row">
+          <label>user_id</label>
+          <input class="input mono" name="user_id" value="user_001" required />
+        </div>
+
+        <div class="row2">
+          <div class="row">
+            <label>amount</label>
+            <input class="input mono" name="amount" type="number" value="2500" step="0.01" required />
+          </div>
+          <div class="row">
+            <label>device_id</label>
+            <input class="input mono" name="device_id" value="device_A" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <label>timestamp (ISO)</label>
+          <input class="input mono" name="timestamp" id="timestamp" />
+          <div class="hint">Leave empty to auto-fill current time.</div>
+        </div>
+
+        <div class="row2">
+          <div class="row">
+            <label>oldbalanceOrg</label>
+            <input class="input mono" name="oldbalanceOrg" type="number" value="10000" step="0.01" required />
+          </div>
+          <div class="row">
+            <label>newbalanceOrig</label>
+            <input class="input mono" name="newbalanceOrig" type="number" value="7500" step="0.01" required />
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="row">
+            <label>oldbalanceDest</label>
+            <input class="input mono" name="oldbalanceDest" type="number" value="2000" step="0.01" required />
+          </div>
+          <div class="row">
+            <label>newbalanceDest</label>
+            <input class="input mono" name="newbalanceDest" type="number" value="4500" step="0.01" required />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" type="submit" id="predictBtn">Run Prediction</button>
+          <button class="btn ghost" type="button" id="historyBtn">Load Risk History</button>
+          <button class="btn danger" type="button" id="resetBtn">Reset Demo</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Right: Output -->
+    <section class="card">
+      <div class="cardHead">
+        <h2>2) Response Viewer</h2>
+        <p>Shows the backend output clearly (risk score, reasons, LLM summary).</p>
+      </div>
+
+      <div class="statusBar">
+        <div id="apiStatus" class="pill">API: unknown</div>
+        <div id="lastRoute" class="pill mono">last: —</div>
+      </div>
+
+      <div id="resultBox" class="result">
+        <div class="empty">Run a prediction to see results.</div>
+      </div>
+    </section>
+
+    <!-- CSV Upload -->
+    <section class="card">
+      <div class="cardHead">
+        <h2>3) CSV Upload → <span class="mono">POST /upload_csv</span></h2>
+        <p>Upload CSV and get batch risk levels. Great for demo speed.</p>
+      </div>
+
+      <div class="csv">
+        <input id="csvFile" type="file" accept=".csv" />
+        <button id="uploadBtn" class="btn">Upload & Score</button>
+
+        <div id="csvSummary" class="result mini">
+          <div class="empty">No CSV uploaded yet.</div>
+        </div>
+
+        <details class="help">
+          <summary>CSV columns expected</summary>
+          <div class="mono smallBlock">
+transaction_id,user_id,amount,timestamp,device_id,oldbalanceOrg,newbalanceOrig,oldbalanceDest,newbalanceDest
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- History -->
+    <section class="card">
+      <div class="cardHead">
+        <h2>4) Risk History → <span class="mono">GET /risk_history/{user_id}</span></h2>
+        <p>Lightweight chart (no libraries). Values are from your backend memory.</p>
+      </div>
+
+      <div class="historyWrap">
+        <canvas id="chart" width="900" height="260"></canvas>
+        <div class="legend">
+          <div><span class="dot low"></span> Low</div>
+          <div><span class="dot med"></span> Medium</div>
+          <div><span class="dot high"></span> High</div>
+        </div>
+        <div id="historyNote" class="hint">Click “Load Risk History” after running predictions.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span class="mono">Tip:</span> If you deploy, change API Base URL to your server domain.
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
